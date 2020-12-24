@@ -5,13 +5,14 @@ from google.cloud import tasks_v2 # requires google-cloud-tasks==2.0.0
 from google.protobuf import timestamp_pb2
 
 
-def queue_task(request):
+def queue_cloud_task(request):
     """Given an HTTP endpoint and a payload this function will queue
     a POST request task using a Cloud Tasks queue
     """
     project = os.environ.get("PROJECT_ID")
     queue = os.environ.get("QUEUE_NAME")
     location = os.environ.get("QUEUE_REGION_LOCATION")
+    service_account_email = os.environ.get("SERVICE_ACCOUNT_EMAIL")
 
     request_json = request.get_json()
 
@@ -23,9 +24,6 @@ def queue_task(request):
     in_seconds = request_json.get('in_seconds')
     # the unique name of the task we are queueing
     task_name = request_json.get('task_name')
-
-    # The service account email** required for authentication
-    service_account_email = request_json.get("service_account_email")
 
     # Create a client.
     client = tasks_v2.CloudTasksClient()
