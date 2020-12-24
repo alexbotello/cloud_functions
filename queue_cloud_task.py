@@ -25,11 +25,14 @@ def queue_cloud_task(request):
     # the unique name of the task we are queueing
     task_name = request_json.get('task_name')
 
-    # Create a client.
-    client = tasks_v2.CloudTasksClient()
-
-    # Construct the fully qualified queue name.
-    parent = client.queue_path(project, location, queue)
+    try:
+        # Create a client.
+        client = tasks_v2.CloudTasksClient()
+        # Construct the fully qualified queue name.
+        parent = client.queue_path(project, location, queue)
+    except Exception as e:
+        print(e)
+        return f"{e}", 500
 
     # Construct the request body.
     task = {
@@ -65,7 +68,8 @@ def queue_cloud_task(request):
 
     if task_name is not None:
         # Add the name to tasks.
-        task["name"] = task_name
+        name = f"projects/{project}/locations/{location}/queues/{queue}/tasks{task_name}"
+        task["name"] = name
 
     try:
         # Use the client to build and send the task.
@@ -73,5 +77,5 @@ def queue_cloud_task(request):
         return f"Created task {response.name}", 200
     except Exception as e:
         print(e)
-        return e, 500
+        return f"{e}", 500
     
